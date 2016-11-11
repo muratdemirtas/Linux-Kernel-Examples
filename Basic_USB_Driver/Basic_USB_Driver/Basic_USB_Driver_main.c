@@ -116,8 +116,8 @@ static ssize_t usb_read(struct file *f, char *buffer, size_t buffer_len, loff_t 
 
 //FILE OPERATION FUNCTION CALLBACKS FOR DEVICE I/O
 static struct file_operations file_oprts = { 
-	.read = usb_read,		//FOR READING FOR USB READ
-	.write = usb_write,		//FOR WRITING FOR USB WRITE
+	.read = usb_read,		//FOR READING USB READ
+	.write = usb_write,		//FOR WRITING USB WRITE
 	.open = usb_open,		//FOR OPENING SERIAL PORT
 	.release = usb_close	//FOR CLOSING SERIAL PORT
 };
