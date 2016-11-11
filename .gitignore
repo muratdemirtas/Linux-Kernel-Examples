@@ -272,3 +272,12 @@ paket-files/
 /Hello_World_2/Hello_World_2/Hello_World_2.vcxproj.filters
 /Hello_World_2/Hello_World_2/Makefile
 /Hello_World_2/Hello_World_2/Makefile.old
+/Basic_USB_Driver/CodeDB/Basic_USB_Driver-Debug-Win32
+/Basic_USB_Driver/Basic_USB_Driver.sln
+/Basic_USB_Driver/Basic_USB_Driver/Basic_USB_Driver-Debug.vkrnlsettings
+/Basic_USB_Driver/Basic_USB_Driver/Basic_USB_Driver-Release.vkrnlsettings
+/Basic_USB_Driver/Basic_USB_Driver/Basic_USB_Driver.vcxproj
+/Basic_USB_Driver/Basic_USB_Driver/Basic_USB_Driver.vcxproj.filters
+/Basic_USB_Driver/Basic_USB_Driver/Makefile
+/Basic_USB_Driver/Basic_USB_Driver/gcc_Release.h
+/Basic_USB_Driver/Basic_USB_Driver/gcc_Debug.h
