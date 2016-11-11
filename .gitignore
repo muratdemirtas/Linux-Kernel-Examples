@@ -250,3 +250,14 @@ paket-files/
 # JetBrains Rider
 .idea/
 *.sln.iml
+/Hello_World/Hello_World/Hello_World.vcxproj.filters
+/Hello_World/Hello_World/Hello_World.vcxproj
+/Hello_World/Hello_World/VisualGDBCache/Hello_World-Debug
+/Hello_World/CodeDB/Hello_World-Debug-Win32
+/Hello_World/Hello_World/Hello_World-Debug.vkrnlsettings
+/Hello_World/Hello_World/Hello_World-Release.vkrnlsettings
+/Hello_World/Hello_World/Makefile.old
+/Hello_World/Hello_World/Makefile
+/Hello_World/Hello_World.sln
+/Hello_World/Hello_World/gcc_Debug.h
+/Hello_World/Hello_World/gcc_Release.h
