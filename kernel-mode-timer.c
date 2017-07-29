@@ -16,11 +16,12 @@
  *   You should have received a copy of the GNU Lesser General Public       *
  *   License along with Box.  If not, see <http://www.gnu.org/licenses/>.   *
  ****************************************************************************/
+
 /**
- * @file kernel-mode-timer.c.c
+ * @file kernel-mode-timer.c
  * @author Murat Demirtas <muratdemirtastr@gmail.com>
  * @date 29 June 2017
- * @brief Example kernel mode timer usage
+ * @brief Example kernel mode timer usage example
  * @see http://www.makelinux.net/ldd3/chp-7-sect-4
  */
 
