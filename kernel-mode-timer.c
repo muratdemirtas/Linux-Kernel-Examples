@@ -1,32 +1,56 @@
-/*
-===============================================================================
-Driver Name		:		kernel_timer
-Author			:		MURAT DEMIRTAS
-License			:		GPL
-Description		:		LINUX DEVICE DRIVER PROJECT
-===============================================================================
-*/
+/****************************************************************************
+ * Copyright (C) 2017 by Murat DEMIRTAS                                     *
+ *                                                                          *
+ * This file is part of Box.                                                *
+ *                                                                          *
+ *   Box is free software: you can redistribute it and/or modify it         *
+ *   under the terms of the GNU Lesser General Public License as published  *
+ *   by the Free Software Foundation, either version 3 of the License, or   *
+ *   (at your option) any later version.                                    *
+ *                                                                          *
+ *   Box is distributed in the hope that it will be useful,                 *
+ *   but WITHOUT ANY WARRANTY; without even the implied warranty of         *
+ *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the          *
+ *   GNU Lesser General Public License for more details.                    *
+ *                                                                          *
+ *   You should have received a copy of the GNU Lesser General Public       *
+ *   License along with Box.  If not, see <http://www.gnu.org/licenses/>.   *
+ ****************************************************************************/
+/**
+ * @file kernel-mode-timer.c.c
+ * @author Murat Demirtas <muratdemirtastr@gmail.com>
+ * @date 29 June 2017
+ * @brief Example kernel mode timer usage
+ * @see http://www.makelinux.net/ldd3/chp-7-sect-4
+ */
 
+ /**
+ * @brief function prototypes for printing message to kernel log
+ * @usage use dmesg function for logs
+ */
 #define DMESG_ALIAS "timerlog"
 #define PDEBUG(fmt,args...) printk(KERN_DEBUG"%s:"fmt,DMESG_ALIAS, ##args)
 #define PERR(fmt,args...) printk(KERN_ERR"%s:"fmt,DMESG_ALIAS, ##args)
 #define PINFO(fmt,args...) printk(KERN_INFO"%s:"fmt,DMESG_ALIAS, ##args)
 
-#include <linux/kernel.h>			 //kernel mode library
+#include <linux/kernel.h>	     //kernel mode library, usef for dmesg facility
 #include <linux/module.h>            //kernel module library
 #include <linux/timer.h>             //kernel mode timer library
-#include <linux/init.h>
-#include <linux/module.h>
-#include <linux/sched.h>
-#include <linux/vermagic.h>
-#include <linux/moduleparam.h>
+#include <linux/sched.h>             //for module infos
+#include <linux/moduleparam.h>       //for module parameters
+#include <linux/vermagic.h>          //for getting current kernel and process info
+#include <linux/init.h>              //for freeing shared memories
 
-MODULE_ALIAS("timerModule");
-MODULE_LICENSE("GPL");
-MODULE_AUTHOR("murat demirtas <muratdemirtastr@gmail.com>");
-MODULE_DESCRIPTION("Example kernel mode timer usage");
+ /**
+ * @brief module descriptions
+ */
+MODULE_ALIAS("timerModule");     //it will be module alias
+MODULE_LICENSE("GPL");           //module license (must be define)
+MODULE_AUTHOR("murat demirtas <muratdemirtastr@gmail.com>");   //module author
+MODULE_DESCRIPTION("Example kernel mode timer usage");         //module descriptoin
 
-static int timer_delay;
+
+static int timer_delay = 1000;
 static struct timer_list my_timer;
 
 #define DEBUG_MODE
@@ -49,34 +73,44 @@ static void debug_when_init(void)
 
 }
 
+ /**
+ * @brief this callback function will be fired when module removed
+ * @params none
+ * @info useful for freeing used objects,tasks, timers and memories
+ * @return none 
+ */
 static int __init kernel_timer_init(void)
-{
-	  debug_when_init();
+{         
+	PINFO("Timer module initializing\n");
+	debug_when_init();
 	/* setup your timer to call my_timer_callback */
-	  setup_timer(&my_timer, my_timer_callback, 1);
-	  /* setup timer interval to 200 msecs */
-	  mod_timer(&my_timer, jiffies + msecs_to_jiffies(200));
-
-	  return 0;
-
-	PINFO("INIT\n");
-
+	setup_timer(&my_timer, my_timer_callback, 1);
+	/* setup timer interval to 200 msecs */
+	mod_timer(&my_timer, jiffies + msecs_to_jiffies(1000));
 	return 0;
 }
 
+ /**
+ * @brief this callback function will be fired when module removed
+ * @params none
+ * @info useful for freeing used objects,tasks, timers and memories
+ * @return none 
+ */
 static void __exit kernel_timer_exit(void)
 {	
-
 	/* remove kernel timer when unloading module */
 	del_timer(&my_timer);
+	PINFO("Timer module removing\n");
 	return;
-	PINFO("EXIT\n");
-
 }
 
+ /**
+ * @brief this function will fire when module installed from kernel space
+ * @params parameter can define with insmod, ex: sudo insmod module.ko 1000
+ * @info S_IRUGO for a parameter that can be read by the world but cannot be changed; 
+ */
 module_init(kernel_timer_init);
 module_exit(kernel_timer_exit);
-
 module_param(timer_delay, int, S_IRUGO);
 
 
