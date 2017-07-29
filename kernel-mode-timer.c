@@ -63,7 +63,7 @@ static struct timer_list my_timer;
  * @return none 
  * @note timer function only call one once, you must reinit for periodic callback
  */
-void my_timer_callback( unsigned long data 
+void my_timer_callback( unsigned long data )
 {
         /* print log */
 	PINFO("kernel timer executing\n");
