@@ -65,7 +65,9 @@ static struct timer_list my_timer;
  */
 void my_timer_callback( unsigned long data 
 {
+        /* print log */
 	PINFO("kernel timer executing\n");
+	/* setup timer interval to msecs */
 	mod_timer(&my_timer, jiffies + msecs_to_jiffies(timer_delay));
 }
 
@@ -97,8 +99,8 @@ static int __init kernel_timer_init(void)
 	debug_when_init();
 	/* setup your timer to call my_timer_callback */
 	setup_timer(&my_timer, my_timer_callback, 1);
-	/* setup timer interval to 200 msecs */
-	mod_timer(&my_timer, jiffies + msecs_to_jiffies(1000));
+	/* setup timer interval to msecs */
+	mod_timer(&my_timer, jiffies + msecs_to_jiffies(timer_delay));
 	return 0;
 }
 
