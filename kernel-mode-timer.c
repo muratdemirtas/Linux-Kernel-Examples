@@ -65,7 +65,7 @@ static struct timer_list my_timer;
  */
 void my_timer_callback( unsigned long data 
 {
-	PINFO("kernel_timer_timer executing\n");
+	PINFO("kernel timer executing\n");
 	mod_timer(&my_timer, jiffies + msecs_to_jiffies(timer_delay));
 }
 
