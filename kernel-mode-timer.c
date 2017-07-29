@@ -33,7 +33,7 @@
 #define PERR(fmt,args...) printk(KERN_ERR"%s:"fmt,DMESG_ALIAS, ##args)
 #define PINFO(fmt,args...) printk(KERN_INFO"%s:"fmt,DMESG_ALIAS, ##args)
 
-#include <linux/kernel.h>	     //kernel mode library, usef for dmesg facility
+#include <linux/kernel.h>	     //kernel mode library, used for dmesg facility
 #include <linux/module.h>            //kernel module library
 #include <linux/timer.h>             //kernel mode timer library
 #include <linux/sched.h>             //for module infos
@@ -49,28 +49,39 @@ MODULE_LICENSE("GPL");           //module license (must be define)
 MODULE_AUTHOR("murat demirtas <muratdemirtastr@gmail.com>");   //module author
 MODULE_DESCRIPTION("Example kernel mode timer usage");         //module descriptoin
 
-
+ /**
+ * @brief variables used in this module 
+ */
 static int timer_delay = 1000;
 static struct timer_list my_timer;
-
 #define DEBUG_MODE
 
-void my_timer_callback( unsigned long data )
+ /**
+ * @brief debug function with printk()
+ * @params data
+ * @return none 
+ * @note timer function only call one once, you must reinit for periodic callback
+ */
+void my_timer_callback( unsigned long data 
 {
 	PINFO("kernel_timer_timer executing\n");
-	mod_timer(&my_timer, jiffies + msecs_to_jiffies(200));
+	mod_timer(&my_timer, jiffies + msecs_to_jiffies(timer_delay));
 }
 
+ /**
+ * @brief debug function with printk()
+ * @params none
+ * @return none 
+ */
 static void debug_when_init(void)
 {
-
 	#ifdef DEBUG_MODE
 	PINFO("Kernel version is: %s ",UTS_RELEASE);
 	PINFO("Process ID is: %d",current->pid);
 	PINFO("Module called with:%s ",current->comm);
 	PINFO("Received parameter: %d ",timer_delay);
 	#endif
-
+	return;
 }
 
  /**
