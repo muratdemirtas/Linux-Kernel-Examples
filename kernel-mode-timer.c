@@ -58,7 +58,7 @@ static struct timer_list my_timer;
 #define DEBUG_MODE
 
  /**
- * @brief debug function with printk()
+ * @brief callback function will execute when timer period expired
  * @params data
  * @return none 
  * @note timer function only call one once, you must reinit for periodic callback
