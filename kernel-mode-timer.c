@@ -88,9 +88,9 @@ static void debug_when_init(void)
 }
 
  /**
- * @brief this callback function will be fired when module removed
+ * @brief this callback function will be fired when module installed
  * @params none
- * @info useful for freeing used objects,tasks, timers and memories
+ * @info init your timers,tasks,memories,queues etc..
  * @return none 
  */
 static int __init kernel_timer_init(void)
