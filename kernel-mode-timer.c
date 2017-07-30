@@ -66,10 +66,13 @@ static long int timer_data = 40;
  */
 void my_timer_callback( unsigned long data )
 {
+	volatile int ret_val;
         /* print log */
 	PINFO("kernel timer callback executing,data is %ld\n",data);
 	/* setup timer interval to msecs */
-	mod_timer(&my_timer, jiffies + msecs_to_jiffies(timer_delay));
+	ret_val = mod_timer(&my_timer, jiffies + msecs_to_jiffies(timer_delay));
+	if (ret_val)
+	    	    PERR("Cant set timer, error occurred\n");
 }
 
  /**
@@ -106,7 +109,7 @@ static int __init kernel_timer_init(void)
 	ret_val = mod_timer(&my_timer, jiffies + msecs_to_jiffies(timer_delay));
 
 	if(ret_val)
-			PERR("Cant set timer, error occurred\n");
+	    	    PERR("Cant set timer, error occurred\n");
 	else
 		    PINFO("Timer armed with %d ms\n", timer_delay);
 	return 0;
