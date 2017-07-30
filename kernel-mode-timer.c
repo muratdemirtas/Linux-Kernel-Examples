@@ -67,7 +67,7 @@ static long int timer_data = 40;
 void my_timer_callback( unsigned long data )
 {
         /* print log */
-	PINFO("kernel timer executing\n");
+	PINFO("kernel timer callback executing, data is %ld\n");
 	/* setup timer interval to msecs */
 	mod_timer(&my_timer, jiffies + msecs_to_jiffies(timer_delay));
 }
