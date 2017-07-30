@@ -124,9 +124,9 @@ static void __exit kernel_timer_exit(void)
  * @params parameter can define with insmod, ex: sudo insmod module.ko 1000
  * @info S_IRUGO for a parameter that can be read by the world but cannot be changed; 
  */
-module_init(kernel_timer_init);
-module_exit(kernel_timer_exit);
-module_param(timer_delay, int, S_IRUGO);
+module_init(kernel_timer_init);		//set callback functions for initializing
+module_exit(kernel_timer_exit);         //set callback functions for deinitializing
+module_param(timer_delay, int, S_IRUGO); //set parameters to receive from userspace
 
 
 
