@@ -55,6 +55,7 @@ MODULE_DESCRIPTION("Example kernel mode timer usage");         //module descript
  */
 static int timer_delay = 1000;
 static struct timer_list my_timer;
+static long int timer_data = 40;
 #define DEBUG_MODE
 
  /**
@@ -98,7 +99,7 @@ static int __init kernel_timer_init(void)
 	PINFO("Timer module initializing\n");
 	debug_when_init();
 	/* setup your timer to call my_timer_callback */
-	setup_timer(&my_timer, my_timer_callback, 1);
+	setup_timer(&my_timer, my_timer_callback, timer_data);
 	/* setup timer interval to msecs */
 	mod_timer(&my_timer, jiffies + msecs_to_jiffies(timer_delay));
 	return 0;
