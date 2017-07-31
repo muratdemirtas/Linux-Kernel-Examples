@@ -72,8 +72,8 @@ static int worker_task_handler_fn(void *arguments)
 		PINFO("Worker thread executing on system CPU:%d \n",get_cpu());
 		ssleep(WORKER_THREAD_DELAY);
 
-	/*@attention while(true),while(1==1),for(;;) loops will can't
-     *kernel threads doesnt allow async signal handling unlike user space
+	/*@attention while(true),for(;;) loops will can't receive signals,
+     *kernel threads doesnt allow sync signal handling like user space apps.
 	 *you must check signals in forever loops everytime
 	 *if signal_pending function capture SIGKILL signal, then thread will exit
 	 */
@@ -121,8 +121,8 @@ static int default_task_handler_fn(void *arguments)
 		PINFO("Default thread executing on system CPU:%d \n",get_cpu());
 		ssleep(DEFAULT_THREAD_DELAY);
 
-	/*@attention while(true),while(1==1),for(;;) loops will can't
-	 *kernel threads doesnt allow async signal handling unlike user space
+	/*@attention while(true),for(;;) loops will can't receive signals,
+	 *kernel threads doesnt allow sync signal handling like user space apps.
 	 *you must check signals in forever loops everytime
 	 *if signal_pending function capture SIGKILL signal, then thread will exit
 	 */
@@ -203,14 +203,14 @@ static int __init kernel_thread_init(void)
 	/*@brief check task if they are started succesfully
 	*/
 	if(worker_task)
-		PINFO("Worker task created successfully\n");
+		PINFO("Worker thread running\n");
 	else
-		PINFO("Worker task error while creating\n");
+		PERR("Worker task can't start\n");
 
 	if(default_task)
-		PINFO("Default task created successfully\n");
+		PINFO("Default thread running\n");
 	else
-		PINFO("Default task error while creating\n");
+		PERR("Default task can't start\n");
 
 	return 0;
 }
