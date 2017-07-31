@@ -18,129 +18,235 @@
  ****************************************************************************/
 
 /**
- * @file kernel-mode-timer.c
+ * @file kernel-threads.c
  * @author Murat Demirtas <muratdemirtastr@gmail.com>
- * @date 29 June 2017
- * @brief Example kernel mode timer usage example
+ * @date 31 June 2017
+ * @brief Example kernel mode threads usage example
  * @see http://www.makelinux.net/ldd3/chp-7-sect-4
  */
 
- /**
- * @brief function prototypes for printing message to kernel log
- * @usage use dmesg function for logs
- */
-#define DMESG_ALIAS "timerlog"
-#define PDEBUG(fmt,args...) printk(KERN_DEBUG"%s:"fmt,DMESG_ALIAS, ##args)
-#define PERR(fmt,args...) printk(KERN_ERR"%s:"fmt,DMESG_ALIAS, ##args)
-#define PINFO(fmt,args...) printk(KERN_INFO"%s:"fmt,DMESG_ALIAS, ##args)
+#include "kernel_thread.h"          //header file includes some debug functions
+#include <linux/kernel.h>           //used for do_exit()
+#include <linux/threads.h>          //used for allow_signal
+#include <linux/kthread.h>          //used for kthread_create
+#include <linux/delay.h>            //used for ssleep()
 
-#include <linux/kernel.h>	     //kernel mode library, used for dmesg facility
-#include <linux/module.h>            //kernel module library
-#include <linux/timer.h>             //kernel mode timer library
-#include <linux/sched.h>             //for module infos
-#include <linux/moduleparam.h>       //for module parameters
-#include <linux/vermagic.h>          //for getting current kernel and process info
-#include <linux/init.h>              //for freeing shared memories
+/*@brief
+ * variables for this example, task structs, cpu id's as integer
+*/
 
- /**
- * @brief module descriptions
- */
-MODULE_ALIAS("timerModule");     //it will be module alias
-MODULE_LICENSE("GPL");           //module license (must be define)
-MODULE_AUTHOR("murat demirtas <muratdemirtastr@gmail.com>");   //module author
-MODULE_DESCRIPTION("Example kernel mode timer usage");         //module descriptoin
+static struct task_struct *worker_task,*default_task;
+static int get_current_cpu,set_current_cpu;
+#define WORKER_THREAD_DELAY 4
+#define DEFAULT_THREAD_DELAY 6
 
- /**
- * @brief variables used in this module
- */
-static int timer_delay = 1000;
-static struct timer_list my_timer;
-static long int timer_data = 40;
-#define DEBUG_MODE
+/*@brief
+ * Linux Kernel Module Parameters
+*/
+MODULE_LICENSE("GPL");
+MODULE_AUTHOR("muratdemirtas <muratdemirtastr@gmail.com> ");
+MODULE_DESCRIPTION("Kernel thread example");
+MODULE_ALIAS("Threading");
 
- /**
- * @brief callback function will execute when timer period expired
- * @params data
- * @return none
- * @note timer function only call one once, you must reinit for periodic callback
- */
-void my_timer_callback( unsigned long data )
+
+/*@brief  worker task main constructor
+ *@note   it will forever after while() loop
+ *@params arguments from when task creating with kthread_creat()
+ *@return nothing
+*/
+static int worker_task_handler_fn(void *arguments)
 {
-	volatile int ret_val;
-        /* print log */
-	PINFO("kernel timer callback executing,data is %ld\n",data);
-	/* setup timer interval to msecs */
-	ret_val = mod_timer(&my_timer, jiffies + msecs_to_jiffies(timer_delay));
-	if (ret_val)
-	    	    PERR("Cant set timer, error occurred\n");
-}
+	/*@brief
+	 * here is your world, you can declare your variables,structs
+	*/
 
- /**
- * @brief debug function with printk()
- * @params none
- * @return none
- */
-static void debug_when_init(void)
-{
-	#ifdef DEBUG_MODE
-	PINFO("Kernel version is: %s ",UTS_RELEASE);
-	PINFO("Process ID is: %d",current->pid);
-	PINFO("Module called with:%s ",current->comm);
-	PINFO("Received parameter: %d ",timer_delay);
-	#endif
-	return;
-}
+	/* @note this macro will allow to stop thread from userspace
+	 * or kernelspace
+	 */
+	allow_signal(SIGKILL);
 
- /**
- * @brief this callback function will be fired when module installed
- * @params none
- * @info init your timers,tasks,memories,queues etc..
- * @return none
- */
-static int __init kernel_timer_init(void)
-{
-	int ret_val;
-	PINFO("Timer module initializing\n");
-	debug_when_init();
-	/* setup your timer to call my_timer_callback */
-	setup_timer(&my_timer, my_timer_callback, timer_data);
-	/* setup timer interval to msecs */
+	/*@attention while(true),while(1==1),for(;;) loops will can't
+	 *receive signal for stopping thread
+	 */
+	while(!kthread_should_stop()){
+		PINFO("Worker thread executing on system CPU:%d \n",get_cpu());
+		ssleep(WORKER_THREAD_DELAY);
 
-	ret_val = mod_timer(&my_timer, jiffies + msecs_to_jiffies(timer_delay));
+	/*@attention while(true),while(1==1),for(;;) loops will can't
+     *kernel threads doesnt allow async signal handling unlike user space
+	 *you must check signals in forever loops everytime
+	 *if signal_pending function capture SIGKILL signal, then thread will exit
+	 */
 
-	if(ret_val)
-	    	    PERR("Cant set timer, error occurred\n");
-	else
-		    PINFO("Timer armed with %d ms\n", timer_delay);
+		if (signal_pending(worker_task))
+			            break;
+	}
+	/*@brief
+	 * do_exit is same as exit(0) function, but must be used with threads
+	 */
+
+	/*@brief
+	 * Kernel Thread has higher priority than user thread because Kernel threads
+	 * are used to provide privileged services to applications.
+	 */
+
+	do_exit(0);
+
+	PERR("Worker task exiting\n");
 	return 0;
 }
 
- /**
- * @brief this callback function will be fired when module removed
- * @params none
- * @info useful for freeing used objects,tasks, timers and memories
- * @return none
- */
-static void __exit kernel_timer_exit(void)
-{	
-	/* remove kernel timer when unloading module */
-	del_timer(&my_timer);
-	PINFO("Timer module removing\n");
-	return;
+/*@brief   default task main constructor
+ *@attention this task have highest real time priority
+ *@note   it will forever after while() loop
+ *@params arguments from when task creating with kthread_creat()
+ *@return nothing
+*/
+static int default_task_handler_fn(void *arguments)
+{
+	/*@brief
+	 * here is your world, you can declare your variables,structs
+	*/
+
+	/* @note this macro will allow to stop thread from userspace
+	 * or kernelspace
+	 */
+	allow_signal(SIGKILL);
+
+	/*@attention while(true),while(1==1),for(;;) loops will can't
+     *receive signal for stopping thread
+	*/
+	while(!kthread_should_stop())
+	{
+		PINFO("Default thread executing on system CPU:%d \n",get_cpu());
+		ssleep(DEFAULT_THREAD_DELAY);
+
+	/*@attention while(true),while(1==1),for(;;) loops will can't
+	 *kernel threads doesnt allow async signal handling unlike user space
+	 *you must check signals in forever loops everytime
+	 *if signal_pending function capture SIGKILL signal, then thread will exit
+	 */
+
+	    if (signal_pending(default_task))
+		            break;
+	}
+
+	PERR("Default task exiting\n");
+
+	/*@brief
+	 * do_exit is same as exit(0) function, but must be used with threads
+	*/
+	do_exit(0);
+
+	return 0;
 }
 
- /**
- * @brief this function will fire when module installed from kernel space
- * @params parameter can define with insmod, ex: sudo insmod module.ko timer_delay=1000
- * @info S_IRUGO for a parameter that can be read by the world but cannot be changed;
- */
-module_init(kernel_timer_init);
-module_exit(kernel_timer_exit);
-module_param(timer_delay, int, S_IRUGO);
+/*@brief linux kernel module initial macro function
+ *@attention only run one once when module installed
+ *@note   must be exit with return
+ *@params nothing
+ *@return signal status with int parameter
+*/
+static int __init kernel_thread_init(void)
+{
 
+	/*@brief scheduler priority structs to set task priority
+	 */
+	struct sched_param task_sched_params =
+	{
+			.sched_priority = MAX_RT_PRIO
+	};
 
+	task_sched_params.sched_priority = 90;
 
+	PINFO("Initializing kernel mode thread example module\n");
+	PINFO("Creating Threads\n");
 
+	/*@brief get current cpu to bind over task
+	 */
+	get_current_cpu = get_cpu();
+	PDEBUG("Getting current CPU %d to binding worker thread\n",
+											get_current_cpu);
 
+	/*@brief initialize worker task with arguments, thread_name and cpu
+	 *@note you can see thread name using ps aux command on userspace
+	 */
+	worker_task = kthread_create(worker_task_handler_fn,
+			(void*)"arguments as char pointer","thread_name");
+	kthread_bind(worker_task,get_current_cpu);
 
+	if(worker_task)
+		PINFO("Worker task created successfully\n");
+	else
+		PINFO("Worker task error while creating\n");
+
+	/*@brief initialize default task with arguments,thread_name and another cpu
+	 *@note you can see thread name using ps aux command on userspace
+	*/
+	set_current_cpu = 2;
+	PDEBUG("Getting current CPU %d to binding default thread\n",
+											set_current_cpu);
+
+	default_task = kthread_create(default_task_handler_fn,
+				(void*)"arguments as char pointer","thread_name");
+	kthread_bind(default_task,set_current_cpu);
+
+	/*@brief set scheduler priority to default task
+	*/
+	sched_setscheduler(default_task, SCHED_FIFO, &task_sched_params);
+
+	/*@brief tasks are now process, start them
+	*/
+	wake_up_process(worker_task);
+	wake_up_process(default_task);
+
+	/*@brief check task if they are started succesfully
+	*/
+	if(worker_task)
+		PINFO("Worker task created successfully\n");
+	else
+		PINFO("Worker task error while creating\n");
+
+	if(default_task)
+		PINFO("Default task created successfully\n");
+	else
+		PINFO("Default task error while creating\n");
+
+	return 0;
+}
+
+/*@brief linux kernel module deinitial macro function
+ *@attention only run one once when module removed
+ *@note   must be exit with return
+ *@params nothing
+ *@return signal status with int parameter
+*/
+static void __exit kernel_thread_exit(void)
+{	
+
+	PERR("Module removing from kernel, threads stopping\n");
+
+	/*@brief
+	 * this functions will send SIGKILL's to stop threads when module removing
+	*/
+
+	if(worker_task)
+		kthread_stop(worker_task);
+
+	PERR("Worker task stopped\n");
+
+	if(default_task)
+		kthread_stop(default_task);
+
+	PERR("Default task stopped\n");
+
+	PINFO("Bye Bye\n");
+
+}
+
+/*@brief
+ * set initial and exit callback functions to module macro
+*/
+module_init(kernel_thread_init);
+module_exit(kernel_thread_exit);
 
