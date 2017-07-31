@@ -34,7 +34,6 @@
 /*@brief
  * variables for this example, task structs, cpu id's as integer
 */
-
 static struct task_struct *worker_task,*default_task;
 static int get_current_cpu,set_current_cpu;
 #define WORKER_THREAD_DELAY 4
