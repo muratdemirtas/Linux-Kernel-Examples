@@ -131,7 +131,7 @@ static void __exit kernel_timer_exit(void)
 
  /**
  * @brief this function will fire when module installed from kernel space
- * @params parameter can define with insmod, ex: sudo insmod module.ko 1000
+ * @params parameter can define with insmod, ex: sudo insmod module.ko timer_delay=1000
  * @info S_IRUGO for a parameter that can be read by the world but cannot be changed;
  */
 module_init(kernel_timer_init);
