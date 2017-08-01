@@ -24,7 +24,7 @@
 /**
  * @brief variables used for this example
  */
-#define GPIO_PIN_DESC "For detecting rising edges"
+#define GPIO_PIN_DESC "For detecting rising edges interrupts"
 #define GPIO_IRQ_DESC "Example GPIO Interrupt"
 #define MODULE_DEBUG_MODE
 
@@ -106,9 +106,11 @@ static irqreturn_t r_irq_handler(int irq, void *dev_id)
 	//ATTENTION//
 	//PRINTK IS BLOCKING CALL  AND SHOULD BE NOT USED IN
 	//REAL INTERRUPT APPLICATIONS
-	
+	#ifdef MODULE_DEBUG_MODE
 	printk(KERN_NOTICE "Rising edge detected,Interrupt! on  GPIO [%d]\n",
 			BCM2836_HW_GPIO_PIN);
+	#endif
+	
 
 	//////////////////////////////////////////////////////////////////////
 	////////////////////YOUR FUNCTIONS WILL COME HERE/////////////////////
