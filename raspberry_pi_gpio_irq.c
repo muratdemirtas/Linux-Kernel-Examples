@@ -26,8 +26,13 @@
  */
 #define GPIO_PIN_DESC "For detecting rising edges"
 #define GPIO_IRQ_DESC "Example GPIO Interrupt"
-#define BCM2837_HW_GPIO_PIN 17
 #define MODULE_DEBUG_MODE
+/**
+ * @brief we want GPIO_17 (pin 11 on P5 pinout raspberry pi rev. 2 board)
+ * to generate interrupt
+ */
+#define BCM2837_HW_GPIO_PIN 17
+short int IRQ_NUMBER_OF_GPIO  = 0;
 
 /**
  * @brief for return code of LKM
@@ -63,33 +68,46 @@ static void debug_when_init(void)
 	return;
 }
 
-MODULE_ALIAS("timerModule");     //it will be module alias
+/**
+ * @brief module settings.
+ */
+MODULE_ALIAS("interrupting");     //it will be module alias
 MODULE_LICENSE("GPL");           //module license (must be define)
 MODULE_AUTHOR("murat demirtas <muratdemirtastr@gmail.com>");   //module author
 MODULE_DESCRIPTION("RPi GPIO interrupt with IRQ");  //module description
 
 
 
-
-
-short int IRQ_NUMBER_OF_GPIO  = 0;
-
-static irqreturn_t r_irq_handler(int irq, void *dev_id) {
-
+/**
+ * @brief  irq handler cb function, will be fire when interrupt generated
+ * @params irq number and device id of GPIO Controller
+ * @return irqreturn_t 
+ * @attention printk() should not be used for performance and stability
+ */
+static irqreturn_t r_irq_handler(int irq, void *dev_id)
+{
 	unsigned long interrupt_flag;
-
-
+	/**
+ 	 * @brief  clear and restore interrupt flags using local_irq_save
+	 * and restore
+ 	*/
+	
 	local_irq_save(interrupt_flag);
 	
 	//ATTENTION//
 	//PRINTK USING DYNAMIC MEMORY ALLOCATION AND MUST BE NOT USED IN
 	//REAL APPLICATIONS
+	
 	printk(KERN_NOTICE "Rising edge detected,Interrupt! on  GPIO [%d]\n",
 			BCM2837_HW_GPIO_PIN);
 
+	//////////////////////////////////////////////////////////////////////
+	////////////////////YOUR FUNCTIONS WILL COME HERE/////////////////////
+	//////////////////////////////////////////////////////////////////////
+	
 	local_irq_restore(interrupt_flag);
 
-   return IRQ_HANDLED;
+        return IRQ_HANDLED;
 }
 
 static int setup_gpio_interrupt(void)
