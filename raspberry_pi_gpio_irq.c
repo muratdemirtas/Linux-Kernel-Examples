@@ -29,10 +29,10 @@
 #define MODULE_DEBUG_MODE
 
 /**
- * @brief we want GPIO_17 (pin 11 on P5 pinout raspberry pi rev. 2 board)
+ * @brief we want GPIO_17 of BCM2836 (pin 11 on P5 pinout raspberry pi rev. 2 board)
  * to generate interrupt
  */
-#define BCM2837_HW_GPIO_PIN 17
+#define BCM2836_HW_GPIO_PIN 17
 short int IRQ_NUMBER_OF_GPIO  = 0;
 
 /**
@@ -44,7 +44,7 @@ enum {
 }ret_code_of_mod;
 
 /**
- * @brief for GPIO request return code of ARM BCM2837
+ * @brief for GPIO request return code of ARM BCM2836
  */
 enum
 {
@@ -98,7 +98,7 @@ static irqreturn_t r_irq_handler(int irq, void *dev_id)
 	//REAL APPLICATIONS
 	
 	printk(KERN_NOTICE "Rising edge detected,Interrupt! on  GPIO [%d]\n",
-			BCM2837_HW_GPIO_PIN);
+			BCM2836_HW_GPIO_PIN);
 
 	//////////////////////////////////////////////////////////////////////
 	////////////////////YOUR FUNCTIONS WILL COME HERE/////////////////////
@@ -117,14 +117,14 @@ static irqreturn_t r_irq_handler(int irq, void *dev_id)
 static int setup_gpio_interrupt(void)
 {
 
-	PDEBUG("Requesting BCM2837 Pin...\n");
+	PDEBUG("Requesting BCM2836 Pin...\n");
 
-	if(gpio_request(BCM2837_HW_GPIO_PIN,GPIO_IRQ_DESC))	{
+	if(gpio_request(BCM2836_HW_GPIO_PIN,GPIO_IRQ_DESC))	{
 		PERR("GPIO request failure for pin %s\n",GPIO_IRQ_DESC);
 		return GPIO_TO_REQ_ERR;
 	}
 
-	IRQ_NUMBER_OF_GPIO = gpio_to_irq(BCM2837_HW_GPIO_PIN);
+	IRQ_NUMBER_OF_GPIO = gpio_to_irq(BCM2836_HW_GPIO_PIN);
 
 	if(IRQ_NUMBER_OF_GPIO < 0) {
 		PERR("GPIO request failure for pin %s\n",GPIO_IRQ_DESC);
@@ -155,7 +155,7 @@ static int release_gpio_interrupt(void)
 
 	PDEBUG("freeing irq and gpio pin\n");
 	free_irq(IRQ_NUMBER_OF_GPIO,GPIO_IRQ_DESC);
-	gpio_free(BCM2837_HW_GPIO_PIN);
+	gpio_free(BCM2836_HW_GPIO_PIN);
 
 	return NO_ERR;
 }
