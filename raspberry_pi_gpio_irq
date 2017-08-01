@@ -55,6 +55,10 @@ static irqreturn_t r_irq_handler(int irq, void *dev_id) {
 
 
 	local_irq_save(interrupt_flag);
+	
+	//ATTENTION//
+	//PRINTK USING DYNAMIC MEMORY ALLOCATION AND MUST BE NOT USED IN
+	//REAL APPLICATIONS
 	printk(KERN_NOTICE "Rising edge detected,Interrupt! on  GPIO [%d]\n",
 			BCM2837_HW_GPIO_PIN);
 
