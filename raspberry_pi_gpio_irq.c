@@ -156,7 +156,7 @@ static int setup_gpio_interrupt(void)
 	PDEBUG("IRQ mapped to gpio pin, IRQ no: %d\n",IRQ_NUMBER_OF_GPIO);
 
 	/**
- 	 * @brief try to take irq request from proc and prepare cb functions
+ 	 * @brief try to register irq request to proc and prepare cb functions
 	 */
 	if(request_irq(IRQ_NUMBER_OF_GPIO,(irq_handler_t) r_irq_handler,
 			IRQF_TRIGGER_RISING, GPIO_PIN_DESC, GPIO_IRQ_DESC))
