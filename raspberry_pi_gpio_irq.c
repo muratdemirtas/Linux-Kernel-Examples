@@ -44,7 +44,7 @@ enum {
 }ret_code_of_mod;
 
 /**
- * @brief for GPIO request return code of ARM BCM2836
+ * @brief enum for GPIO request return code of ARM BCM2836
  */
 enum
 {
@@ -54,6 +54,15 @@ enum
 	IRQ_TO_REQ_ERR
 }gpio_err;
 
+/**
+ * @brief enum for detecting edges on GPIO
+ */
+enum 
+{ 
+	FALLING,
+	RISING,
+	BOTH_FALLING_RISING,
+}edge_types;
 
 /**
  * @brief function for print module parameters to dmesg log
