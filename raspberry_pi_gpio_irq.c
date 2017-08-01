@@ -27,6 +27,7 @@
 #define GPIO_PIN_DESC "For detecting rising edges"
 #define GPIO_IRQ_DESC "Example GPIO Interrupt"
 #define MODULE_DEBUG_MODE
+
 /**
  * @brief we want GPIO_17 (pin 11 on P5 pinout raspberry pi rev. 2 board)
  * to generate interrupt
@@ -76,8 +77,6 @@ MODULE_LICENSE("GPL");           //module license (must be define)
 MODULE_AUTHOR("murat demirtas <muratdemirtastr@gmail.com>");   //module author
 MODULE_DESCRIPTION("RPi GPIO interrupt with IRQ");  //module description
 
-
-
 /**
  * @brief  irq handler cb function, will be fire when interrupt generated
  * @params irq number and device id of GPIO Controller
@@ -95,7 +94,7 @@ static irqreturn_t r_irq_handler(int irq, void *dev_id)
 	local_irq_save(interrupt_flag);
 	
 	//ATTENTION//
-	//PRINTK USING DYNAMIC MEMORY ALLOCATION AND MUST BE NOT USED IN
+	//PRINTK USING DYNAMIC MEMORY ALLOCATION AND SHOULD BE NOT USED IN
 	//REAL APPLICATIONS
 	
 	printk(KERN_NOTICE "Rising edge detected,Interrupt! on  GPIO [%d]\n",
@@ -110,6 +109,11 @@ static irqreturn_t r_irq_handler(int irq, void *dev_id)
         return IRQ_HANDLED;
 }
 
+/**
+ * @brief  Setup BCM2836 GPIO Peripherals
+ * @params none
+ * @return GPIO request return code
+ */
 static int setup_gpio_interrupt(void)
 {
 
@@ -141,6 +145,11 @@ static int setup_gpio_interrupt(void)
 	return NO_ERR;
 }
 
+/**
+ * @brief  for clearing IRQ request and GPIO settings
+ * @params none
+ * @return error code
+ */
 static int release_gpio_interrupt(void)
 {
 
@@ -151,6 +160,11 @@ static int release_gpio_interrupt(void)
 	return NO_ERR;
 }
 
+/**
+ * @brief  will fire when module removed
+ * @params none
+ * @return err code of module
+ */
 static int __init init_gpio_irq_fn(void)
 {
 	PINFO("GPIO IRQ module called,debug info:\n");
@@ -162,6 +176,9 @@ static int __init init_gpio_irq_fn(void)
 	return MODULE_OK;
 }
 
+/**
+ * @brief  will fire when module removed
+ */
 static void __exit exit_gpio_irq_fn(void)
 {
 	PINFO("GPIO IRQ module removing,IRQ no :%d\n",IRQ_NUMBER_OF_GPIO);
@@ -169,6 +186,9 @@ static void __exit exit_gpio_irq_fn(void)
 	return;
 }
 
+/**
+ * @brief  functions that will fire when module installed and removed
+ */
 module_init(init_gpio_irq_fn);
 module_exit(exit_gpio_irq_fn);
 
