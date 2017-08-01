@@ -95,6 +95,7 @@ MODULE_DESCRIPTION("RPi GPIO interrupt with IRQ");  //module description
 static irqreturn_t r_irq_handler(int irq, void *dev_id)
 {
 	unsigned long interrupt_flag;
+	long int count = 0;
 	/**
  	 * @brief  clear and restore interrupt flags using local_irq_save
 	 * and restore
@@ -112,6 +113,7 @@ static irqreturn_t r_irq_handler(int irq, void *dev_id)
 	//////////////////////////////////////////////////////////////////////
 	////////////////////YOUR FUNCTIONS WILL COME HERE/////////////////////
 	//////////////////////////////////////////////////////////////////////
+	count  = count + 1;
 	
 	local_irq_restore(interrupt_flag);
 
