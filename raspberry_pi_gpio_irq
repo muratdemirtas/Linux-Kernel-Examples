@@ -1,21 +1,58 @@
 /*
-===============================================================================
-Driver Name		:		raspberry_pi_gpio_irq
-Author			:		MURAT DEMIRTAS
-License			:		GPL
-Description		:		LINUX DEVICE DRIVER PROJECT
-===============================================================================
-*/
+ * Basic Linux Kernel module using GPIO interrupts.
+ *
+ * Author:
+ * 	murat demirtas <muratdemirtastr@gmail.com>
+ *
+ * This software is licensed under the terms of the GNU General Public
+ * License version 2, as published by the Free Software Foundation, and
+ * may be copied, distributed, and modified under those terms.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ */
 
-#include "raspberry_pi_gpio_irq.h"
-#include <linux/sched.h>             //used for getting module infos
-#include <linux/vermagic.h>          //used for getting current kernel and process info
-#include <linux/gpio.h>			     //used for hardware GPIO
-#include <linux/interrupt.h>		 //used for interrupt handling
+#include "raspberry_pi_gpio_irq.h"        //used for debugging based printk()
+#include <linux/sched.h>                  //used for getting module infos
+#include <linux/vermagic.h>               //used for getting current kernel and process info
+#include <linux/gpio.h>			  //used for hardware GPIO
+#include <linux/interrupt.h>		  //used for interrupt handling
 
+/**
+ * @brief variables used for this example
+ */
+#define GPIO_PIN_DESC "For detecting rising edges"
+#define GPIO_IRQ_DESC "Example GPIO Interrupt"
 #define BCM2837_HW_GPIO_PIN 17
 #define MODULE_DEBUG_MODE
 
+/**
+ * @brief for return code of LKM
+ */
+enum {
+	MODULE_OK,
+	GPIO_FAILURE
+}ret_code_of_mod;
+
+/**
+ * @brief for GPIO request return code of ARM BCM2837
+ */
+enum
+{
+	NO_ERR,
+	GPIO_TO_REQ_ERR,
+	GPIO_TO_IRQ_ERR,
+	IRQ_TO_REQ_ERR
+}gpio_err;
+
+
+/**
+ * @brief function for print module parameters to dmesg log
+ * @return none
+ */
 static void debug_when_init(void)
 {
 	#ifdef MODULE_DEBUG_MODE
@@ -31,21 +68,9 @@ MODULE_LICENSE("GPL");           //module license (must be define)
 MODULE_AUTHOR("murat demirtas <muratdemirtastr@gmail.com>");   //module author
 MODULE_DESCRIPTION("RPi GPIO interrupt with IRQ");  //module description
 
-#define GPIO_PIN_DESC "For detecting rising edges"
-#define GPIO_IRQ_DESC "Example GPIO Interrupt"
 
-enum {
-	MODULE_OK,
-	GPIO_FAILURE
-}ret_code_of_mod;
 
-enum
-{
-	NO_ERR,
-	GPIO_TO_REQ_ERR,
-	GPIO_TO_IRQ_ERR,
-	IRQ_TO_REQ_ERR
-}gpio_err;
+
 
 short int IRQ_NUMBER_OF_GPIO  = 0;
 
