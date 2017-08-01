@@ -120,14 +120,14 @@ static int setup_gpio_interrupt(void)
 	PDEBUG("Requesting BCM2836 Pin...\n");
 
 	if(gpio_request(BCM2836_HW_GPIO_PIN,GPIO_IRQ_DESC))	{
-		PERR("GPIO request failure for pin %s\n",GPIO_IRQ_DESC);
+		PERR("GPIO request failure for pin %d\n",BCM2836_HW_GPIO_PIN);
 		return GPIO_TO_REQ_ERR;
 	}
 
 	IRQ_NUMBER_OF_GPIO = gpio_to_irq(BCM2836_HW_GPIO_PIN);
 
 	if(IRQ_NUMBER_OF_GPIO < 0) {
-		PERR("GPIO request failure for pin %s\n",GPIO_IRQ_DESC);
+		PERR("IRQ request failure for pin %d\n",BCM2836_HW_GPIO_PIN);
 		return GPIO_TO_IRQ_ERR;
 	}
 
@@ -136,7 +136,7 @@ static int setup_gpio_interrupt(void)
 	if(request_irq(IRQ_NUMBER_OF_GPIO,(irq_handler_t) r_irq_handler,
 			IRQF_TRIGGER_RISING, GPIO_PIN_DESC, GPIO_IRQ_DESC))
 	{
-		PERR("GPIO request failure for pin %s\n",GPIO_IRQ_DESC);
+		PERR("GPIO request failure for pin %d\n",BCM2836_HW_GPIO_PIN);
 		return IRQ_TO_REQ_ERR;
 	}
 
